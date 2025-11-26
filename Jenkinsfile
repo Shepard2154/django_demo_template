@@ -30,12 +30,6 @@ pipeline {
     post {
         always {
             archiveArtifacts artifacts: 'htmlcov/**/*', fingerprint: true
-            publishHTML([
-                reportDir: 'htmlcov',
-                reportFiles: 'index.html',
-                reportName: 'Coverage Report',
-                keepAll: true
-            ])
         }
         failure {
             echo 'Pipeline failed!'

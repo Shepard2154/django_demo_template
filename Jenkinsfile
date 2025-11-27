@@ -28,7 +28,6 @@ pipeline {
     }
     
 
-    
     post {
         always {
             archiveArtifacts artifacts: 'htmlcov/**/*', fingerprint: true

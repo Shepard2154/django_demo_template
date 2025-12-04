@@ -6,6 +6,10 @@ pipeline {
         }
     }
 
+    environment {
+        GIT_COMMIT = "${env.GIT_COMMIT}"
+    }
+
     stages {
         stage('Install Dependencies') {
             steps {
@@ -23,6 +27,18 @@ pipeline {
                     coverage report
                     coverage html
                 '''
+            }
+        }
+        
+        stage('Docker Build and Push') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'mycreds', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                    sh '''
+                        docker build -t iorp/django_demo:${GIT_COMMIT} .
+                        docker login -u ${USERNAME} -p ${PASSWORD}
+                        docker push iorp/django_demo:${GIT_COMMIT}
+                    '''
+                }
             }
         }
     }

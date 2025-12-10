@@ -35,11 +35,14 @@ pipeline {
             }
             steps {
                 script {
-                    sh '''
+                    checkout scm
+                    def workspace = env.WORKSPACE
+                    sh """
                         docker stop django_demo 2>/dev/null || true
                         docker rm django_demo 2>/dev/null || true
-                        docker run -d -p 8000:8000 --name django_demo -v ${WORKSPACE}:/app -w /app python:3.11-slim sh -c "pip install -r requirements.txt && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
-                    '''
+                        docker build -t django_demo:latest ${workspace}
+                        docker run -d -p 8000:8000 --name django_demo django_demo:latest
+                    """
                 }
             }
         }

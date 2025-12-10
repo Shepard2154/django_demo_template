@@ -39,7 +39,6 @@ pipeline {
             }
             steps {
                 script {
-                    // Выполняем checkout, так как это новый агент
                     checkout scm
                 }
                 withCredentials([usernamePassword(credentialsId: 'my_personal_token', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {

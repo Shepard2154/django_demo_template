@@ -33,15 +33,19 @@ pipeline {
         stage('Docker Build and Push') {
             agent {
                 docker {
-                    image 'docker:dind'
-                    args '-v /var/run/docker.sock:/var/run/docker.sock --privileged'
+                    image 'docker:latest'
+                    args '-v /var/run/docker.sock:/var/run/docker.sock'
                 }
             }
             steps {
+                script {
+                    // Выполняем checkout, так как это новый агент
+                    checkout scm
+                }
                 withCredentials([usernamePassword(credentialsId: 'my_personal_token', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
                     sh '''
                         docker build -t iorp/django_demo:${GIT_COMMIT} .
-                        docker login -u ${USERNAME} -p ${PASSWORD}
+                        echo ${PASSWORD} | docker login -u ${USERNAME} --password-stdin
                         docker push iorp/django_demo:${GIT_COMMIT}
                     '''
                 }

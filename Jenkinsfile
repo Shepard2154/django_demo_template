@@ -32,7 +32,7 @@ pipeline {
         
         stage('Docker Build and Push') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'mycreds', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                withCredentials([usernamePassword(credentialsId: 'git', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
                     sh '''
                         docker build -t iorp/django_demo:${GIT_COMMIT} .
                         docker login -u ${USERNAME} -p ${PASSWORD}
@@ -52,4 +52,3 @@ pipeline {
         }
     }
 }
- 

@@ -50,7 +50,7 @@ pipeline {
             archiveArtifacts artifacts: 'htmlcov/**/*', fingerprint: true
         }
         failure {
-            echo 'Pipeline failed!'
+            echo 'Pipeline failed!!!'
         }
     }
 }

@@ -27,11 +27,15 @@ pipeline {
         }
         
         stage('Run Application') {
+            agent none
             steps {
-                sh '''
-                    python manage.py migrate
-                    python manage.py runserver 0.0.0.0:8000
-                '''
+                script {
+                    sh '''
+                        docker stop django_demo 2>/dev/null || true
+                        docker rm django_demo 2>/dev/null || true
+                        docker run -d -p 8000:8000 --name django_demo -v ${WORKSPACE}:/app -w /app python:3.11-slim sh -c "pip install -r requirements.txt && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+                    '''
+                }
             }
         }
     }

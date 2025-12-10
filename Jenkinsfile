@@ -39,7 +39,9 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    sh "docker run -d -p 8000:8000 --name django_demo django_demo:latest"
+                    withCredentials([string(credentialsId: 'django_secret_key', variable: 'SECRET_KEY')]) {
+                        sh "docker run -d -p 8000:8000 --name django_demo -e SECRET_KEY=\${SECRET_KEY} django_demo:latest"
+                    }
                 }
             }
         }

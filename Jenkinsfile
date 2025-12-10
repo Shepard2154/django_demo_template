@@ -1,48 +1,45 @@
 pipeline {
-    agent {
-        docker {
-            image 'python:3.11-slim'
-            args '-u root -p 8000:8000'
-        }
+    agent any
+
+    environment {
+        DOCKER_HOST = "unix:///var/run/docker.sock"
     }
 
     stages {
-        stage('Install Dependencies') {
+        stage('Checkout and Build') {
             steps {
-                sh '''
-                    pip install --upgrade pip
-                    pip install -r requirements.txt
-                '''
+                script {
+                    sh "docker stop django_demo 2>/dev/null || true"
+                    sh "docker rm django_demo 2>/dev/null || true"
+                    sh "docker build -t django_demo:latest ."
+                }
             }
         }
         
         stage('Test + Coverage') {
             steps {
-                sh '''
-                    coverage run --source='.' manage.py test --verbosity=2
-                    coverage report
-                    coverage html
-                '''
+                script {
+                    sh """
+                    docker run --rm \
+                        -v ${WORKSPACE}:/app \
+                        -w /app \
+                        python:3.11-slim \
+                        bash -c "
+                            pip install --upgrade pip
+                            pip install -r requirements.txt
+                            coverage run --source='.' manage.py test --verbosity=2
+                            coverage report
+                            coverage html
+                        "
+                    """
+                }
             }
         }
         
-        stage('Run Application') {
-            agent {
-                docker {
-                    image 'docker:latest'
-                    args '-v /var/run/docker.sock:/var/run/docker.sock'
-                }
-            }
+        stage('Deploy') {
             steps {
                 script {
-                    checkout scm
-                    def workspace = env.WORKSPACE
-                    sh """
-                        docker stop django_demo 2>/dev/null || true
-                        docker rm django_demo 2>/dev/null || true
-                        docker build -t django_demo:latest ${workspace}
-                        docker run -d -p 8000:8000 --name django_demo django_demo:latest
-                    """
+                    sh "docker run -d -p 8000:8000 --name django_demo django_demo:latest"
                 }
             }
         }

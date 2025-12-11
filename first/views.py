@@ -20,7 +20,7 @@ def get_base_context(pagename):
 
 
 def main_page(request):
-    context = get_base_context('Добро пожаловать!')
+    context = get_base_context('Кто ты воин? Добро пожаловать и пожалуйтесь, пожалуйста!')
     creation_date = datetime.datetime.now()
     context['pages'] = 3
     context['auth'] = 'Andrew'

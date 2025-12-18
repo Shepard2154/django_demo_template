@@ -35,9 +35,7 @@ pipeline {
                 }
             }
         }
-        
-        
-        
+
         stage('Deploy') {
             steps {
                 script {
